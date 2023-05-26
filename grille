@@ -1,0 +1,343 @@
+overall_length=830;
+overall_width=435;
+overall_height=10;
+border_margin=4;
+
+PRINTHH=true;
+PRINTGRID=true;
+PRINTHEX=true;
+PRINTREFGRID=true;
+
+module grillefull(){
+
+// Sides
+
+difference(){
+    cube([overall_length, overall_width, overall_height]);
+
+    translate([border_margin,border_margin,-1]) 
+        cube([overall_length-(border_margin)*2,
+          overall_width-(border_margin)*2,
+          overall_height+2]);
+}
+
+// Top panel
+panel_height=2.2;
+translate([0,0, overall_height-panel_height])
+    topPanel();
+
+hole_size=3.6; // best 3.5
+hole_distance=1.2;
+holesPerL=overall_length/(hole_size+(hole_distance*2));
+holesPerW=overall_width/(hole_size+(hole_distance*2));
+
+module topPanel(){
+    /*difference(){
+        cube([overall_length, overall_width, panel_height]);
+        for(i = [0:holesPerL]){
+           for(j = [0:holesPerW]){
+               translate([i*(hole_size+(hole_distance*2)),
+                          j*(hole_size+(hole_distance*2)), 0])
+                cube(hole_size);
+           }
+        }
+    }*/
+    union(){
+        for(i = [0:holesPerL]){
+            translate([i*(hole_size+(hole_distance*2)),0, 0])
+            cube([hole_distance, overall_width, panel_height]);
+        }
+        for(j = [0:holesPerW]){
+                    translate([0,
+                      j*(hole_size+(hole_distance*2)), 0])
+            cube([overall_length, hole_distance, panel_height]);
+        }
+    }
+}
+}
+posL=3;
+posW=0;
+tileL= overall_length/4;
+tileW=overall_width/2;
+module rend(all){
+
+    if(all == true){
+        for(posL=[0:3]){
+            for(posW=[0:1]){
+            printGrid(posW,posL);
+            }
+        }
+   } else {
+    printGrid(posW,posL);
+   }
+}
+
+module printGrid(posW,posL){
+
+intersection(){
+    difference(){
+        grillefull();
+        connector(posW,posL);
+    }
+    translate([posL*tileL,posW*tileW,0])
+    cube([tileL,tileW,20]);
+}
+
+}
+//connector(posW,posL);
+
+
+//    connector(posW,posL);
+
+
+
+module connector(posW, posL){
+if(posW==0){
+    if(posL==0){
+        connector00();
+    }else if(posL==1){
+        connector10();
+    }else if(posL==2){
+        connector20();
+    }else if(posL==3){
+        connector30();
+    }
+}else{
+    if(posL==0){
+        connector01();
+    }else if(posL==1){
+        connector11();
+    }else if(posL==2){
+        connector21();
+    }else if(posL==3){
+        connector31();
+    }
+}
+}
+
+connSideWidth=20;
+connSideHeight=overall_height-4;
+connSideDepth=4;
+connSidePos=1;
+
+module connector00(){
+    translate([tileL-connSideWidth/2, 3, connSidePos])
+        connectorSideFemale();
+    translate([3, tileW+connSideWidth/2, connSidePos])
+    rotate([0,0,270])
+        connectorSideFemale();
+}
+module connector01(){
+    translate([tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
+        connectorSideFemale();
+    translate([3, tileW+connSideWidth/2, connSidePos])
+    rotate([0,0,270])
+        connectorSideFemale();
+}
+module connector10(){
+    translate([tileL-connSideWidth/2, 3, connSidePos])
+        connectorSideFemale();
+    translate([2*tileL-connSideWidth/2, 3, connSidePos])
+        connectorSideFemale();
+}
+module connector11(){
+    translate([1*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
+        connectorSideFemale();
+    translate([2*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
+        connectorSideFemale();
+}
+module connector20(){
+    translate([2*tileL-connSideWidth/2, 3, connSidePos])
+        connectorSideFemale();
+    translate([3*tileL-connSideWidth/2, 3, connSidePos])
+        connectorSideFemale();
+}
+module connector21(){
+    translate([2*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
+        connectorSideFemale();
+    translate([3*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
+        connectorSideFemale();
+}
+module connector30(){
+    translate([3*tileL-connSideWidth/2, 3, connSidePos])
+        connectorSideFemale();
+    translate([4*tileL-connSideDepth-3, tileW+connSideWidth/2, connSidePos])
+    rotate([0,0,270])
+        connectorSideFemale();
+    
+}
+module connector31(){
+    translate([3*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
+        connectorSideFemale();
+    translate([4*tileL-connSideDepth-3, tileW+connSideWidth/2, connSidePos])
+    rotate([0,0,270])
+        connectorSideFemale();
+}
+
+module connector_side_male(){
+    difference(){
+        cube([connSideWidth, connSideDepth, connSideHeight]);
+        // Screw hole
+        connectorSideScrew();
+    }
+}
+module connectorSideFemale(){
+    cube([connSideWidth, connSideDepth, connSideHeight]);
+    connectorSideScrew();
+}
+module connectorSideScrew(){
+     rotate([90,0,0])
+    translate([connSideWidth*3/4,connSideHeight/2,-connSideDepth*2])
+        cylinder(20,2.5,2.5);
+    rotate([90,0,0])
+    translate([connSideWidth*1/4,connSideHeight/2,-connSideDepth*2])
+        cylinder(20,2.5,2.5);
+}
+
+HHW=850;
+HHH=455;
+HHD=400;
+HHPly=16;
+module HH() {
+    //Main
+    translate([(overall_length-HHW)/2, (overall_width-HHH)/2, 0])
+    difference(){
+        cube([HHW,HHH,HHD]);
+        translate([HHPly/2,HHPly/2, HHD-18])
+        cube([HHW-HHPly,HHH-HHPly,19]);
+    }
+    
+    // 12 inch
+    color([1,0,0])
+    translate([180,220,2])
+    cylinder(400, 152.4,152.4);
+    // 12 Inch
+    color([1,0,0])
+    translate([500,220,2])
+    cylinder(400, 152.4,152.4);
+    // hole
+    color([0,1,0])
+    translate([760,60,2])
+    cylinder(400, 40,40);
+    
+    //corners
+    difference(){
+        corners();
+
+        translate([-8, -8, 0])
+        cube([HHW-4,HHH-4,HHD+12]);
+
+    }
+}
+module corners(){
+    cornerSize=40;
+        translate([((overall_length-HHW)/2)-4, ((overall_width-HHH)/2)-4, 0])
+        cube([cornerSize,cornerSize,HHD+10]);
+        translate([(HHW)-cornerSize-4, ((overall_width-HHH)/2)-4, 0])
+        cube([cornerSize,cornerSize,HHD+10]);
+        translate([((overall_length-HHW)/2)-4, HHH-cornerSize-4, 0])
+        cube([cornerSize,cornerSize,HHD+10]);
+        translate([(HHW)-cornerSize-4, HHH-cornerSize-4, 0])
+        cube([cornerSize,cornerSize,HHD+10]);
+    }
+    
+    
+
+
+module refgrid(){
+color([0,0.5,0.8,.2]){
+translate([-10, tileW-5,0])
+cube([overall_length+20, 10, 100]);
+
+translate([tileL-5,-10,0])
+cube([10, overall_width+20, 100]);
+translate([2*tileL-5,-10,0])
+cube([10, overall_width+20, 100]);
+translate([3*tileL-5,-10,0])
+cube([10, overall_width+20, 100]);
+}
+}
+
+module hexagon(radius)
+{
+  circle(r=radius,$fn=6);
+}
+
+module shell(radius)
+{
+  difference()
+  {
+    hexagon(radius*1.4); // base
+    hexagon(radius*1.); // hole
+  }
+}
+
+module piece(radius)
+{
+  translate([0, 0, -radius/12])
+  {
+    scale([1,1,0.5])
+    {
+      hexagon(radius);
+    }
+  }
+}
+
+module shell_with_piece(radius)
+{
+  shell(radius);
+  piece(radius);
+}
+
+function column_to_offset(column, offset) = (column % 2) * offset;
+
+module translate_to_hex(x_coord, y_coord, hex_width)
+{
+  translate([x_coord*hex_width*1.75, y_coord*hex_width*2+column_to_offset(x_coord, hex_width), 0])
+  {
+    child(0);
+  }
+}
+
+module lattice(rows, columns, hex_width)
+{
+  for(x = [0:columns-1])
+  {
+    for(y = [0:rows-1])
+    {
+      translate_to_hex(x, y, hex_width)
+      {
+        shell(hex_width);
+      }
+    }
+  }
+}
+
+if(PRINTHH == true){
+
+translate([0,0,-400])
+HH();
+}
+
+if(PRINTHEX){
+intersection(){
+    
+linear_extrude(height=2.2)
+{
+  lattice(72, 160, 4);
+
+  // translate_to_hex(2, 2, 4)
+  // {
+  //   piece(4);
+  // }
+}
+    translate([posL*tileL,posW*tileW,0])
+    cube([tileL/2,tileW/2,20]);
+}
+}
+if(PRINTGRID){
+color([0,.1,.1]) rend(false);
+}
+if(PRINTREFGRID){
+refgrid();
+}
