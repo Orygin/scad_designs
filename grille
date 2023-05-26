@@ -1,7 +1,17 @@
-overall_length=830;
-overall_width=435;
+overall_length=810;
+overall_width=415;
 overall_height=10;
-border_margin=4;
+
+HHW=850;
+HHH=455;
+HHD=400;
+HHPly=20;
+
+border_margin=HHPly;
+panel_margin=6;
+
+panel_height=2.2;
+RENDALL=false;
 
 PRINTHH=true;
 PRINTGRID=true;
@@ -13,18 +23,31 @@ module grillefull(){
 // Sides
 
 difference(){
-    cube([overall_length, overall_width, overall_height]);
-
+    translate([-panel_margin, -panel_margin,0])
+    cube([HHW+2*panel_margin, HHH+2*panel_margin, panel_height]);
+    
+          
     translate([border_margin,border_margin,-1]) 
-        cube([overall_length-(border_margin)*2,
-          overall_width-(border_margin)*2,
-          overall_height+2]);
+        cube([HHW-(border_margin*2),
+          HHH-(border_margin*2),
+          HHD+2]);
 }
 
 // Top panel
-panel_height=2.2;
-translate([0,0, overall_height-panel_height])
-    topPanel();
+if(PRINTHEX){
+
+    translate([-3.5,0, 0])
+    linear_extrude(height=panel_height)
+    {
+      lattice(72, 160, 5);
+
+      // translate_to_hex(2, 2, 4)
+      // {
+      //   piece(4);
+      // }
+    }
+}
+    //topPanel();
 
 hole_size=3.6; // best 3.5
 hole_distance=1.2;
@@ -55,10 +78,12 @@ module topPanel(){
     }
 }
 }
+
 posL=3;
-posW=0;
-tileL= overall_length/4;
-tileW=overall_width/2;
+posW=1;
+tileL=(HHW+(2*panel_margin))/4;
+tileW=(HHH+(2*panel_margin))/2;
+
 module rend(all){
 
     if(all == true){
@@ -77,9 +102,11 @@ module printGrid(posW,posL){
 intersection(){
     difference(){
         grillefull();
-        connector(posW,posL);
+        HHCorners(4);
+        //connector(posW,posL);
     }
-    translate([posL*tileL,posW*tileW,0])
+    
+    translate([(posL*tileL)-panel_margin,(posW*tileW)-panel_margin,0])
     cube([tileL,tileW,20]);
 }
 
@@ -194,55 +221,59 @@ module connectorSideScrew(){
         cylinder(20,2.5,2.5);
 }
 
-HHW=850;
-HHH=455;
-HHD=400;
-HHPly=16;
 module HH() {
     //Main
-    translate([(overall_length-HHW)/2, (overall_width-HHH)/2, 0])
+    //translate([(overall_length-HHW)/2, (overall_width-HHH)/2, 0])
     difference(){
         cube([HHW,HHH,HHD]);
-        translate([HHPly/2,HHPly/2, HHD-18])
-        cube([HHW-HHPly,HHH-HHPly,19]);
+        translate([HHPly,HHPly, HHD-50])
+        cube([HHW-HHPly*2,HHH-HHPly*2,51]);
     }
     
+    speakerD=310;
     // 12 inch
     color([1,0,0])
-    translate([180,220,2])
-    cylinder(400, 152.4,152.4);
+    translate([(speakerD/2)+30+HHPly,HHH/2,2])
+    cylinder(HHD-40, speakerD/2,speakerD/2);
     // 12 Inch
     color([1,0,0])
-    translate([500,220,2])
-    cylinder(400, 152.4,152.4);
+    translate([(speakerD*1.5)+35+HHPly,HHH/2,2])
+    cylinder(HHD-40, speakerD/2,speakerD/2);
     // hole
     color([0,1,0])
-    translate([760,60,2])
-    cylinder(400, 40,40);
+    translate([HHW-50-HHPly-20,50+HHPly+20,2])
+    cylinder(HHD-40, 50,50);
     
     //corners
-    difference(){
-        corners();
+    HHCorners(0);
 
-        translate([-8, -8, 0])
-        cube([HHW-4,HHH-4,HHD+12]);
+}
+module HHCorners(margin){
+    difference(){
+        corners(margin);
+        
+        translate([10+margin/2, 10+margin/2, 0])
+            cube([HHW-20-margin,HHH-20-margin,HHD+21]);
 
     }
 }
-module corners(){
-    cornerSize=40;
-        translate([((overall_length-HHW)/2)-4, ((overall_width-HHH)/2)-4, 0])
-        cube([cornerSize,cornerSize,HHD+10]);
-        translate([(HHW)-cornerSize-4, ((overall_width-HHH)/2)-4, 0])
-        cube([cornerSize,cornerSize,HHD+10]);
-        translate([((overall_length-HHW)/2)-4, HHH-cornerSize-4, 0])
-        cube([cornerSize,cornerSize,HHD+10]);
-        translate([(HHW)-cornerSize-4, HHH-cornerSize-4, 0])
-        cube([cornerSize,cornerSize,HHD+10]);
+module corners(margin){
+    cornerSize=100+margin;
+    cornerHeight=20;
+        translate([-6, -6, 0])
+        cube([cornerSize,cornerSize,HHD+cornerHeight]);
+        
+        translate([(HHW)-cornerSize+6, -6, 0])
+        cube([cornerSize,cornerSize,HHD+cornerHeight]);
+        
+        translate([-6, HHH-cornerSize+6, 0])
+        cube([cornerSize,cornerSize,HHD+cornerHeight]);
+        
+        translate([(HHW)-cornerSize+6, HHH-cornerSize+6, 0])
+        cube([cornerSize,cornerSize,HHD+cornerHeight]);
     }
     
     
-
 
 module refgrid(){
 color([0,0.5,0.8,.2]){
@@ -319,24 +350,9 @@ translate([0,0,-400])
 HH();
 }
 
-if(PRINTHEX){
-intersection(){
-    
-linear_extrude(height=2.2)
-{
-  lattice(72, 160, 4);
 
-  // translate_to_hex(2, 2, 4)
-  // {
-  //   piece(4);
-  // }
-}
-    translate([posL*tileL,posW*tileW,0])
-    cube([tileL/2,tileW/2,20]);
-}
-}
 if(PRINTGRID){
-color([0,.1,.1]) rend(false);
+color([0,.1,.1]) rend(RENDALL);
 }
 if(PRINTREFGRID){
 refgrid();
