@@ -1,3 +1,14 @@
+
+RENDALL=false;
+
+PRINTHH=true;
+PRINTGRID=true;
+PRINTHEX=true;
+PRINTREFGRID=true;
+PRINTPLUG=true;
+PRINTCONNECTOR=true;
+
+
 overall_length=810;
 overall_width=415;
 overall_height=10;
@@ -11,14 +22,15 @@ border_margin=HHPly;
 panel_margin=6;
 
 panel_height=2.2;
-RENDALL=false;
 
-PRINTHH=true;
-PRINTGRID=true;
-PRINTHEX=true;
-PRINTREFGRID=true;
+posL=0;
+posW=1;
+tileL=(HHW+(2*panel_margin))/4;
+tileW=(HHH+(2*panel_margin))/2;
 
-module grillefull(){
+
+
+module grillefull(posW,posL){
 
 // Sides
 
@@ -47,6 +59,10 @@ if(PRINTHEX){
       // }
     }
 }
+if(PRINTCONNECTOR){
+    connector(posW,posL);
+    }
+
     //topPanel();
 
 hole_size=3.6; // best 3.5
@@ -79,11 +95,6 @@ module topPanel(){
 }
 }
 
-posL=3;
-posW=1;
-tileL=(HHW+(2*panel_margin))/4;
-tileW=(HHH+(2*panel_margin))/2;
-
 module rend(all){
 
     if(all == true){
@@ -100,14 +111,17 @@ module rend(all){
 module printGrid(posW,posL){
 
 intersection(){
-    difference(){
-        grillefull();
-        HHCorners(4);
-        //connector(posW,posL);
+    union(){
+        difference(){
+            grillefull(posW,posL);
+            translate([0,0, -HHD]) HHCorners(4);
+            //connector(posW,posL);
+        }
     }
+
     
-    translate([(posL*tileL)-panel_margin,(posW*tileW)-panel_margin,0])
-    cube([tileL,tileW,20]);
+    translate([(posL*tileL)-panel_margin,(posW*tileW)-panel_margin, -60])
+    cube([tileL,tileW,80]);
 }
 
 }
@@ -119,6 +133,22 @@ intersection(){
 
 
 module connector(posW, posL){
+// Print lips
+    if(posL==0){
+        translate([-6, posW*(tileW)-panel_margin, -lipHeight])
+        cube([6,tileW+panel_margin, lipHeight]);
+    } else if (posL ==3){
+        translate([HHW, posW*(tileW)-panel_margin, -lipHeight])
+        cube([HHW,tileW+panel_margin, lipHeight]);
+    }
+    if(posW==0){
+      translate([posL*tileL-panel_margin, -6, -lipHeight])
+        cube([tileL, 6, lipHeight]);
+    } else {
+      translate([posL*tileL-panel_margin, HHH, -lipHeight])
+        cube([tileL, 6, lipHeight]);
+    }
+    /*
 if(posW==0){
     if(posL==0){
         connector00();
@@ -139,7 +169,7 @@ if(posW==0){
     }else if(posL==3){
         connector31();
     }
-}
+}*/
 }
 
 connSideWidth=20;
@@ -147,19 +177,16 @@ connSideHeight=overall_height-4;
 connSideDepth=4;
 connSidePos=1;
 
+lipHeight=50;
+
 module connector00(){
-    translate([tileL-connSideWidth/2, 3, connSidePos])
-        connectorSideFemale();
-    translate([3, tileW+connSideWidth/2, connSidePos])
-    rotate([0,0,270])
-        connectorSideFemale();
+    translate([0, 0, -lipHeight])
+    cube([6,tileW, lipHeight]);
+    
 }
 module connector01(){
-    translate([tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
-        connectorSideFemale();
-    translate([3, tileW+connSideWidth/2, connSidePos])
-    rotate([0,0,270])
-        connectorSideFemale();
+    translate([0, tileW, -lipHeight])
+    cube([6, tileW, lipHeight]);
 }
 module connector10(){
     translate([tileL-connSideWidth/2, 3, connSidePos])
@@ -252,8 +279,8 @@ module HHCorners(margin){
     difference(){
         corners(margin);
         
-        translate([10+margin/2, 10+margin/2, 0])
-            cube([HHW-20-margin,HHH-20-margin,HHD+21]);
+        translate([10+margin/4, 10+margin/4, -10])
+            cube([HHW-20-margin,HHH-20-margin,HHD+41]);
 
     }
 }
@@ -326,7 +353,7 @@ module translate_to_hex(x_coord, y_coord, hex_width)
 {
   translate([x_coord*hex_width*1.75, y_coord*hex_width*2+column_to_offset(x_coord, hex_width), 0])
   {
-    child(0);
+    children(0);
   }
 }
 
@@ -344,6 +371,24 @@ module lattice(rows, columns, hex_width)
   }
 }
 
+module printPlug(){
+difference(){
+linear_extrude(height=panel_height)
+    {
+      lattice(5, 5, 5);
+      // translate_to_hex(2, 2, 4)
+      // {
+      //   piece(4);
+      // }
+    }
+    
+translate([16,-10,0]) cube([2,60,10]);
+translate([-10,16,0]) cube([60,2,10]);
+
+    }
+}
+
+
 if(PRINTHH == true){
 
 translate([0,0,-400])
@@ -356,4 +401,8 @@ color([0,.1,.1]) rend(RENDALL);
 }
 if(PRINTREFGRID){
 refgrid();
+}
+
+if(PRINTPLUG){
+printPlug();
 }
