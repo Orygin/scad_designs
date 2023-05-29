@@ -1,10 +1,10 @@
 
-RENDALL=false;
+RENDALL=true;
 
-PRINTHH=true;
-PRINTGRID=true;
+PRINTHH=false;
+PRINTGRID=false;
 PRINTHEX=true;
-PRINTREFGRID=true;
+PRINTREFGRID=false;
 PRINTPLUG=true;
 PRINTCONNECTOR=true;
 
@@ -22,12 +22,12 @@ panel_margin=6;
 
 panel_height=2.2;
 
-posL=1;
-posW=2;
+posL=0;
+posW=1;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
-fitMargin=0.15;
+fitMargin=0.4;
 
 
 lipHeight=12;
@@ -148,6 +148,23 @@ module connector(posW, posL){
         cube([tileL, 6, lipHeight]);
     }
     
+    translate([posL*tileL+(130-posL*15),(2*posW*tileW)+(2-posW*30),-.4])
+    linear_extrude(.4) mirror([1,0,0]) text(str(posL,posW), 15);
+    
+    
+    if(posL==1){
+    if(posW==1){
+    //upper
+    translate([(posL+1)*tileL-panel_margin-62, posW*(tileW)-panel_margin+59.5, -60])
+        rotate([0,0,30]) cylinder(62., 16,18, $fn=3);
+    } else {
+    //lower
+    
+    translate([(posL+1)*tileL-panel_margin-61, 
+            (posW+1)*(tileW)-panel_margin-63, -60])
+        rotate([0,0,90]) cylinder(62., 16,18, $fn=3);
+    }
+    }
     /*
 if(posW==0){
     if(posL==0){
@@ -249,7 +266,7 @@ module connectorSideScrew(){
 module HH() {
     //Main
     //translate([(overall_length-HHW)/2, (overall_width-HHH)/2, 0])
-   /* difference(){
+    difference(){
         cube([HHW,HHH,HHD]);
         translate([HHPly,HHPly, HHD-50])
         cube([HHW-HHPly*2,HHH-HHPly*2,51]);
@@ -268,7 +285,7 @@ module HH() {
     color([0,1,0])
     translate([HHW-50-HHPly-20,50+HHPly+20,2])
     cylinder(HHD-40, 50,50);
-    */
+    
     //corners
     HHCorners(0, 8);
 
@@ -319,16 +336,17 @@ module corners(margin){
     
 
 module refgrid(){
+height=panel_height;
 color([0,0.5,0.8,.2]){
-translate([-10, tileW-5,0])
-cube([overall_length+20, 10, 100]);
+translate([-10, tileW-2.5-panel_margin,0])
+cube([overall_length+60, 5, height]);
 
-translate([tileL-5,-10,0])
-cube([10, overall_width+20, 100]);
-translate([2*tileL-5,-10,0])
-cube([10, overall_width+20, 100]);
-translate([3*tileL-5,-10,0])
-cube([10, overall_width+20, 100]);
+translate([tileL-2.5-panel_margin,-10,0])
+cube([5, overall_width+60, height]);
+translate([2*tileL-2.5-panel_margin,-10,0])
+cube([5, overall_width+60, height]);
+translate([3*tileL-2.5-panel_margin,-10,0])
+cube([5, overall_width+60, height]);
 }
 }
 
@@ -374,11 +392,11 @@ module lattice(rows, columns, hex_width, shell)
 module printPlug(visual){
 plug_height=panel_height+3;
 plugD=15.5;
-fitment=0.12;
+fitment=0.11;
     // Visual
     if(visual){
     difference(){
-        linear_extrude(height=panel_height) lattice(7,7, 5, 7);
+        linear_extrude(height=panel_height) lattice(10,10, 5, 7);
             
         //translate([16,-10,0]) cube([2,60,10]);
         //translate([-10,16,0]) cube([60,2,10]);
@@ -401,7 +419,6 @@ fitment=0.12;
     text(str(fitment),6);
     }*/
     
-    fitment=0.12;
     plugH=5-fitment;
     
     
@@ -414,28 +431,37 @@ fitment=0.12;
         //translate([17.25,20,0]) 
 
         //
+    innerhole=2.7;
     translate([17.25,20,0]){
+    difference(){
     cylinder(plug_height, 5, 5, false, $fn=6);
-    
-    translate([0,20,0]){
-    cylinder(panel_height, 5, 5, false, $fn=6);
-    
-    cylinder(plug_height, plugH, plugH, false, $fn=6);
+    cylinder(plug_height, innerhole,innerhole, false, $fn=6);
     }
     
-    translate([26.5,5,0]){
-//    cylinder(panel_height, 5, 5, false, $fn=6);
-    cylinder(plug_height, plugH, plugH, false, $fn=6);
+    translate([0,20*2,0]){
+    //cylinder(panel_height, 5, 5, false, $fn=6);
+    difference(){
+        cylinder(plug_height, plugH, plugH, false, $fn=6);
+        cylinder(plug_height, innerhole,innerhole, false, $fn=6);
+        }
     }
-    translate([26.5,25,0]){
-    cylinder(panel_height, 5, 5, false, $fn=6);
-    cylinder(plug_height, plugH, plugH, false, $fn=6);
-    }
+    
+    translate([26.5*1.66,5,0]){
+    difference(){
+        cylinder(plug_height, plugH, plugH, false, $fn=6);
+        cylinder(plug_height, innerhole,innerhole, false, $fn=6);
+        }    }
+    translate([26.5*1.66,25*1.80,0]){
+    difference(){
+        cylinder(plug_height, plugH, plugH, false, $fn=6);
+        cylinder(plug_height, innerhole,innerhole, false, $fn=6);
+        }    }
     }
     }
     
     // Fitment hex
         translate([0, 0, panel_height]) linear_extrude(height=3) lattice(7, 7, 5, 7+fitment);
+        
     } //diff
     
     
@@ -463,7 +489,7 @@ intersection(){
 printPlug(true);
 
     // Intersect with cube 
-    translate([11,15,0]) cube([39,35,panel_height+3]);
+    translate([12,15,0]) cube([55,55,panel_height+3]);
     
 }
 
