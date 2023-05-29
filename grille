@@ -22,8 +22,8 @@ panel_margin=6;
 
 panel_height=2.2;
 
-posL=0;
-posW=0;
+posL=1;
+posW=2;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
@@ -352,8 +352,8 @@ module translate_to_hex(x_coord, y_coord, hex_width)
 {
   translate([x_coord*hex_width*1.75, y_coord*hex_width*2+column_to_offset(x_coord, hex_width), 0])
   {
-    //children(0);
-    hexagon(hex_width);
+    children(0);
+    //hexagon(hex_width);
   }
 }
 
@@ -378,7 +378,7 @@ fitment=0.12;
     // Visual
     if(visual){
     difference(){
-        linear_extrude(height=panel_height) lattice(3, 4, 5, 6);
+        linear_extrude(height=panel_height) lattice(7,7, 5, 7);
             
         //translate([16,-10,0]) cube([2,60,10]);
         //translate([-10,16,0]) cube([60,2,10]);
@@ -401,25 +401,45 @@ fitment=0.12;
     text(str(fitment),6);
     }*/
     
-    fitment=0.2;
+    fitment=0.12;
     plugH=5-fitment;
     
+    
     //cylinder(panel_height, 5, 5, false, $fn=6);
-    cylinder(plug_height, plugH, plugH, false, $fn=6);
+    difference(){
+
+    union(){
+    
+    //cubes
+        //translate([17.25,20,0]) 
+
+        //
+    translate([17.25,20,0]){
+    cylinder(plug_height, 5, 5, false, $fn=6);
     
     translate([0,20,0]){
     cylinder(panel_height, 5, 5, false, $fn=6);
+    
     cylinder(plug_height, plugH, plugH, false, $fn=6);
     }
     
-    translate([26.25,5,0]){
+    translate([26.5,5,0]){
 //    cylinder(panel_height, 5, 5, false, $fn=6);
     cylinder(plug_height, plugH, plugH, false, $fn=6);
     }
-    translate([26.25,25,0]){
+    translate([26.5,25,0]){
     cylinder(panel_height, 5, 5, false, $fn=6);
     cylinder(plug_height, plugH, plugH, false, $fn=6);
     }
+    }
+    }
+    
+    // Fitment hex
+        translate([0, 0, panel_height]) linear_extrude(height=3) lattice(7, 7, 5, 7+fitment);
+    } //diff
+    
+    
+
 }
 
 
@@ -438,8 +458,15 @@ refgrid();
 }
 
 if(PRINTPLUG){
-translate([tileL-26.5,tileW-24,0])
+translate([tileL-26.5-8.5,tileW-24-15,0])
+intersection(){
 printPlug(true);
+
+    // Intersect with cube 
+    translate([11,15,0]) cube([39,35,panel_height+3]);
+    
+}
+
 }
 
 module cornerBorder(cornerR){
