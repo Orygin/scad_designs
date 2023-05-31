@@ -1,5 +1,5 @@
 
-RENDALL=true;
+RENDALL=false;
 
 PRINTHH=false;
 PRINTGRID=false;
@@ -375,7 +375,7 @@ module translate_to_hex(x_coord, y_coord, hex_width)
   }
 }
 
-module lattice(rows, columns, hex_width, shell)
+module lattice(rows, columns, radius, hex_width, shell)
 {
   for(x = [0:columns-1])
   {
@@ -383,20 +383,19 @@ module lattice(rows, columns, hex_width, shell)
     {
       translate_to_hex(x, y, hex_width)
       {
-        shell(hex_width, shell);
+        shell(radius, shell);
       }
     }
   }
 }
 
 module printPlug(visual){
-plug_height=panel_height+3;
 plugD=15.5;
-fitment=0.11;
+fitment=0.12;
     // Visual
     if(visual){
     difference(){
-        linear_extrude(height=panel_height) lattice(10,10, 5, 7);
+        linear_extrude(height=panel_height) lattice(10,28, 5, 5, 7);
             
         //translate([16,-10,0]) cube([2,60,10]);
         //translate([-10,16,0]) cube([60,2,10]);
@@ -419,11 +418,11 @@ fitment=0.11;
     text(str(fitment),6);
     }*/
     
-    plugH=5-fitment;
-    
+    plugH=5;
     
     //cylinder(panel_height, 5, 5, false, $fn=6);
-    difference(){
+
+/*    difference(){
 
     union(){
     
@@ -431,10 +430,9 @@ fitment=0.11;
         //translate([17.25,20,0]) 
 
         //
-    innerhole=2.7;
     translate([17.25,20,0]){
     difference(){
-    cylinder(plug_height, 5, 5, false, $fn=6);
+    cylinder(plug_height,  plugH, plugH, false, $fn=6);
     cylinder(plug_height, innerhole,innerhole, false, $fn=6);
     }
     
@@ -463,11 +461,39 @@ fitment=0.11;
         translate([0, 0, panel_height]) linear_extrude(height=3) lattice(7, 7, 5, 7+fitment);
         
     } //diff
+    */
     
+    difference(){
+    plug();
+    translate([0, 0, panel_height])
+    linear_extrude(height=3) lattice(10, 30, 5-fitment, 5, 7);
     
+    }
+    
+//    translate([0, 0, panel_height/2])
 
 }
+module plug(){
+    innerhole=2.64;
+    plug_height=panel_height+3;
 
+    for(i=[2,7,12,17,22,27]){
+    for(j=[2,6]){
+
+    linear_extrude(height=plug_height)
+      translate_to_hex(i, j, 5)
+      {        
+          difference()
+          {
+            hexagon(7); // base
+            hexagon(innerhole); // hole
+          }
+      }
+      
+}
+}
+
+}
 
 if(PRINTHH == true){
 
@@ -484,12 +510,12 @@ refgrid();
 }
 
 if(PRINTPLUG){
-translate([tileL-26.5-8.5,tileW-24-15,0])
+translate([14,tileW-24-15-5,0])
 intersection(){
 printPlug(true);
 
     // Intersect with cube 
-    translate([12,15,0]) cube([55,55,panel_height+3]);
+    translate([12,15,0]) cube([55/*142*/,55,panel_height+3]);
     
 }
 
