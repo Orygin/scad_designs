@@ -4,12 +4,15 @@ RENDALL=true;
 PRINTHH=false;
 PRINTGRID=true;
 PRINTHEX=true;
-PRINTREFGRID=true;
+PRINTREFGRID=false;
 PRINTCONNECTOR=true;
 
 PRINTPLUGA=true;
 PRINTPLUGB=true;
+PRINTPLUGC=true;
 
+screwHolesR=2;
+screwHolesH=20;
 
 overall_length=810;
 overall_width=415;
@@ -26,7 +29,7 @@ panel_margin=6;
 
 panel_height=2.8;
 
-posL=3;
+posL=0;
 posW=0;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
@@ -38,6 +41,24 @@ lipHeight=36;
 $fn=80;
 fn=$fn;
 
+module smileyface(height){
+
+difference(){
+linear_extrude(height) import("smiley1.svg");
+//translate([22,22,0])
+//cylinder(101,20,20, center=false);
+
+linear_extrude(height) import("smiley2.svg");
+linear_extrude(height) import("smiley3.svg");
+linear_extrude(height) import("smiley4.svg");
+}
+}
+
+/*
+smiley2=     import("smiley2.svg");
+smiley3=     import("smiley3.svg");
+smiley4=     import("smiley4.svg");
+*/
 module sector(radius, angles, fn = 24) {
 fn=$fn*2;
     r = radius / cos(180 / fn);
@@ -145,6 +166,7 @@ intersection(){
             translate([0,0, -HHD]) HHCorners(5.5, 8);
             //connector(posW,posL);
         }
+        decorations();
     }
 
     
@@ -161,6 +183,9 @@ intersection(){
 
 
 module connector(posW, posL){
+
+difference(){ // screw holes
+union(){
 // Print lips
     if(posL==0){
         translate([-6-fitMargin, posW*(tileW)-panel_margin, -lipHeight])
@@ -177,19 +202,35 @@ module connector(posW, posL){
         cube([tileL, 6, lipHeight]);
     }
     
+    }
+    
+    for(i=[5:65.5:HHW]){   
+        translate([i, -500,-screwHolesH])
+        rotate([-90,0,0])
+        cylinder(2000,screwHolesR, screwHolesR); 
+    }
+    
+    for(i=[5:65.5:HHW]){   
+        translate([-800, i,-screwHolesH])
+        rotate([0,90,0])
+        cylinder(2000,screwHolesR, screwHolesR); 
+    }
+    }
+    
     translate([posL*tileL+(130-posL*15),(2*posW*tileW)+(2-posW*30),-.4])
     linear_extrude(.4) mirror([1,0,0]) text(str(posL,posW), 15);
     
-    
+
+    // 12in support
     if(posL==1){
     if(posW==1){
+    
     //upper
     translate([(posL+1)*tileL-panel_margin-62, posW*(tileW)-panel_margin+70, -HHDepth])
-        rotate([0,0,30])
-        cylinder(HHDepth+panel_height, 16,18, $fn=3);
+    rotate([0,0,30])
+    cylinder(HHDepth+panel_height, 16,18, $fn=3);
     } else {
     //lower
-    
     translate([(posL+1)*tileL-panel_margin-61, 
             (posW+1)*(tileW)-panel_margin-70, -HHDepth])
         rotate([0,0,90])
@@ -204,103 +245,12 @@ module connector(posW, posL){
     linear_extrude(HHDepth+panel_height) arc(310/2, [0,40], 8);
     
     }
-    /*
-if(posW==0){
-    if(posL==0){
-        connector00();
-    }else if(posL==1){
-        connector10();
-    }else if(posL==2){
-        connector20();
-    }else if(posL==3){
-        connector30();
-    }
-}else{
-    if(posL==0){
-        connector01();
-    }else if(posL==1){
-        connector11();
-    }else if(posL==2){
-        connector21();
-    }else if(posL==3){
-        connector31();
-    }
-}*/
 }
 
 connSideWidth=20;
 connSideHeight=overall_height-4;
 connSideDepth=4;
 connSidePos=1;
-
-module connector00(){
-    translate([0, 0, -lipHeight])
-    cube([6,tileW, lipHeight]);
-    
-}
-module connector01(){
-    translate([0, tileW, -lipHeight])
-    cube([6, tileW, lipHeight]);
-}
-module connector10(){
-    translate([tileL-connSideWidth/2, 3, connSidePos])
-        connectorSideFemale();
-    translate([2*tileL-connSideWidth/2, 3, connSidePos])
-        connectorSideFemale();
-}
-module connector11(){
-    translate([1*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
-        connectorSideFemale();
-    translate([2*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
-        connectorSideFemale();
-}
-module connector20(){
-    translate([2*tileL-connSideWidth/2, 3, connSidePos])
-        connectorSideFemale();
-    translate([3*tileL-connSideWidth/2, 3, connSidePos])
-        connectorSideFemale();
-}
-module connector21(){
-    translate([2*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
-        connectorSideFemale();
-    translate([3*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
-        connectorSideFemale();
-}
-module connector30(){
-    translate([3*tileL-connSideWidth/2, 3, connSidePos])
-        connectorSideFemale();
-    translate([4*tileL-connSideDepth-3, tileW+connSideWidth/2, connSidePos])
-    rotate([0,0,270])
-        connectorSideFemale();
-    
-}
-module connector31(){
-    translate([3*tileL-connSideWidth/2, overall_width-connSideDepth-3, connSidePos])
-        connectorSideFemale();
-    translate([4*tileL-connSideDepth-3, tileW+connSideWidth/2, connSidePos])
-    rotate([0,0,270])
-        connectorSideFemale();
-}
-
-module connector_side_male(){
-    difference(){
-        cube([connSideWidth, connSideDepth, connSideHeight]);
-        // Screw hole
-        connectorSideScrew();
-    }
-}
-module connectorSideFemale(){
-    cube([connSideWidth, connSideDepth, connSideHeight]);
-    connectorSideScrew();
-}
-module connectorSideScrew(){
-     rotate([90,0,0])
-    translate([connSideWidth*3/4,connSideHeight/2,-connSideDepth*2])
-        cylinder(20,2.5,2.5);
-    rotate([90,0,0])
-    translate([connSideWidth*1/4,connSideHeight/2,-connSideDepth*2])
-        cylinder(20,2.5,2.5);
-}
 
 module HH() {
     //Main
@@ -545,7 +495,8 @@ HH();
 
 
 if(PRINTGRID){
-color([0,.1,.1]) rend(RENDALL);
+    rend(RENDALL);
+
 }
 if(PRINTREFGRID){
 refgrid();
@@ -574,9 +525,39 @@ if(PRINTPLUGB){
     translate([670,tileW-24-40-4.5,-panel_height])
     plugB();
 }
-
-translate([tileL-37-16, 16, -panel_height])
+if(PRINTPLUGC){
+translate([tileL-37-16, 15, -panel_height])
 plugC();
+translate([tileL-37-16, tileW+32, -panel_height])
+plugC();
+
+translate([2*tileL-37-22, 15, -panel_height])
+plugC();
+translate([2*tileL-37-22, tileW+32, -panel_height])
+plugC();
+translate([3*tileL-37-26, 15, -panel_height])
+plugC();
+translate([3*tileL-37-26, tileW+32, -panel_height])
+plugC();
+}
+
+module decorations(){
+//bottom
+for(i=[0:5]){
+    translate_to_hex(18*i+3,2,5)
+//    translate([139.75,20,0])
+    scale([.25,.25,1])
+    smileyface(panel_height);
+    }
+    //top
+for(i=[0:5]){
+    translate_to_hex(18*i+3,42,5)
+    translate([11,11,0])
+    rotate([0,0,180])
+    scale([.25,.25,1])
+    smileyface(panel_height);
+    }
+}
 
 module plugB(){
 
@@ -611,7 +592,7 @@ posj=[2,6,10,14,27];
 
         // Intersect with cube 
         translate([12,15,0])
-        cube([74/*142*/,142,panel_height+3]);
+        cube([74/*142*/,145,panel_height+3]);
     }
 }
 
