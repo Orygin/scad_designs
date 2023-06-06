@@ -1,12 +1,15 @@
 
-RENDALL=false;
+RENDALL=true;
 
 PRINTHH=false;
-PRINTGRID=false;
+PRINTGRID=true;
 PRINTHEX=true;
-PRINTREFGRID=false;
-PRINTPLUG=true;
+PRINTREFGRID=true;
 PRINTCONNECTOR=true;
+
+PRINTPLUGA=true;
+PRINTPLUGB=true;
+
 
 overall_length=810;
 overall_width=415;
@@ -16,23 +19,49 @@ HHW=850;
 HHH=455;
 HHD=400;
 HHPly=20;
+HHDepth=50;
 
 border_margin=HHPly;
 panel_margin=6;
 
-panel_height=2.2;
+panel_height=2.8;
 
-posL=0;
-posW=1;
+posL=3;
+posW=0;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
 fitMargin=0.4;
 
 
-lipHeight=12;
-$fn =80;
+lipHeight=36;
+$fn=80;
+fn=$fn;
 
+module sector(radius, angles, fn = 24) {
+fn=$fn*2;
+    r = radius / cos(180 / fn);
+    step = -360 / fn;
+
+    points = concat([[0, 0]],
+        [for(a = [angles[0] : step : angles[1] - 360]) 
+            [r * cos(a), r * sin(a)]
+        ],
+        [[r * cos(angles[1]), r * sin(angles[1])]]
+    );
+
+    difference() {
+        circle(radius, $fn = fn);
+        polygon(points);
+    }
+}
+
+module arc(radius, angles, width = 1, fn = 24) {
+    difference() {
+        sector(radius + width, angles, fn);
+        sector(radius, angles, fn);
+    }
+}
 
 module grillefull(posW,posL){
 
@@ -55,7 +84,7 @@ if(PRINTHEX){
     translate([-3.5,0, 0])
     linear_extrude(height=panel_height)
     {
-      lattice(72, 160, 5, 5*1.4);
+      lattice(72, 160, 5, 5, 5*1.4);
     }
 }
 if(PRINTCONNECTOR){
@@ -113,7 +142,7 @@ intersection(){
     union(){
         difference(){
             grillefull(posW,posL);
-            translate([0,0, -HHD]) HHCorners(4, 8);
+            translate([0,0, -HHD]) HHCorners(5.5, 8);
             //connector(posW,posL);
         }
     }
@@ -155,15 +184,25 @@ module connector(posW, posL){
     if(posL==1){
     if(posW==1){
     //upper
-    translate([(posL+1)*tileL-panel_margin-62, posW*(tileW)-panel_margin+59.5, -60])
-        rotate([0,0,30]) cylinder(62., 16,18, $fn=3);
+    translate([(posL+1)*tileL-panel_margin-62, posW*(tileW)-panel_margin+70, -HHDepth])
+        rotate([0,0,30])
+        cylinder(HHDepth+panel_height, 16,18, $fn=3);
     } else {
     //lower
     
     translate([(posL+1)*tileL-panel_margin-61, 
-            (posW+1)*(tileW)-panel_margin-63, -60])
-        rotate([0,0,90]) cylinder(62., 16,18, $fn=3);
+            (posW+1)*(tileW)-panel_margin-70, -HHDepth])
+        rotate([0,0,90])
+        cylinder(HHDepth+panel_height, 16,18, $fn=3);
     }
+    }
+    
+    if(posL==3){    
+    translate([3*tileL-panel_margin-110, 
+            1*(tileW)-panel_margin, -HHDepth])
+    rotate([0,0,-20])
+    linear_extrude(HHDepth+panel_height) arc(310/2, [0,40], 8);
+    
     }
     /*
 if(posW==0){
@@ -268,8 +307,8 @@ module HH() {
     //translate([(overall_length-HHW)/2, (overall_width-HHH)/2, 0])
     difference(){
         cube([HHW,HHH,HHD]);
-        translate([HHPly,HHPly, HHD-50])
-        cube([HHW-HHPly*2,HHH-HHPly*2,51]);
+        translate([HHPly,HHPly, HHD-HHDepth])
+        cube([HHW-HHPly*2,HHH-HHPly*2,HHDepth]);
     }
     
     speakerD=310;
@@ -298,23 +337,25 @@ module HHCorners(margin, corner){
             cube([HHW-20-margin,HHH-20-margin,HHD+41]);
 
     }
+    marg = margin/4;
     //round bottom left
-    translate([10+margin/4, 10+margin/4, -10])
-        cornerBorder(corner);
+    translate([10+marg, 10+marg, -10])
+        cornerBorder(corner+margin);
         
     //round bottom right
-    translate([HHW-margin-10+margin/4, 10+margin/4, -10])
+    translate([HHW-margin-10+marg, 10+marg, -10])
         rotate([0,0,90])
-        cornerBorder(corner);
+        cornerBorder(corner+margin);
+        
     //round top right
-    translate([HHW-margin-10++margin/4, HHH-margin-10+margin/4, -10])
+    translate([HHW-margin-10++marg, HHH-margin-10+marg, -10])
         rotate([0,0,180])
-        cornerBorder(corner);
+        cornerBorder(corner+margin);
 
     //round top left
-    translate([10+margin/4, HHH-margin-10+margin/4, -10])
+    translate([10+marg, HHH-margin-10+marg, -10])
         rotate([0,0,-90])
-        cornerBorder(corner);
+        cornerBorder(corner+margin);
 
 }
 module corners(margin){
@@ -338,6 +379,7 @@ module corners(margin){
 module refgrid(){
 height=panel_height;
 color([0,0.5,0.8,.2]){
+
 translate([-10, tileW-2.5-panel_margin,0])
 cube([overall_length+60, 5, height]);
 
@@ -347,6 +389,7 @@ translate([2*tileL-2.5-panel_margin,-10,0])
 cube([5, overall_width+60, height]);
 translate([3*tileL-2.5-panel_margin,-10,0])
 cube([5, overall_width+60, height]);
+
 }
 }
 
@@ -389,17 +432,16 @@ module lattice(rows, columns, radius, hex_width, shell)
   }
 }
 
-module printPlug(visual){
+module printPlug(posi,posj){
 plugD=15.5;
 fitment=0.12;
     // Visual
-    if(visual){
     difference(){
-        linear_extrude(height=panel_height) lattice(10,28, 5, 5, 7);
+        linear_extrude(height=panel_height) lattice(72,160, 5, 5, 7);
             
         //translate([16,-10,0]) cube([2,60,10]);
         //translate([-10,16,0]) cube([60,2,10]);
-    }}
+    }
     
     // Plug
    /* difference(){
@@ -464,7 +506,7 @@ fitment=0.12;
     */
     
     difference(){
-    plug();
+    plug(posi,posj);
     translate([0, 0, panel_height])
     linear_extrude(height=3) lattice(10, 30, 5-fitment, 5, 7);
     
@@ -473,15 +515,15 @@ fitment=0.12;
 //    translate([0, 0, panel_height/2])
 
 }
-module plug(){
+module plug(posi,posj){
     innerhole=2.64;
-    plug_height=panel_height+3;
-
-    for(i=[2,7,12,17,22,27]){
-    for(j=[2,6]){
+    plug_height=panel_height*2;
+//    for(i=[2,7,12,17,20,24]){
+    for(i=posi){
+    for(j=posj){
 
     linear_extrude(height=plug_height)
-      translate_to_hex(i, j, 5)
+      translate_to_hex(i, j+(i%2), 5)
       {        
           difference()
           {
@@ -509,16 +551,68 @@ if(PRINTREFGRID){
 refgrid();
 }
 
-if(PRINTPLUG){
-translate([14,tileW-24-15-5,0])
-intersection(){
-printPlug(true);
-
-    // Intersect with cube 
-    translate([12,15,0]) cube([55/*142*/,55,panel_height+3]);
+if(PRINTPLUGA){
+    translate([172-9,tileW-24-40-5,-panel_height])
+    plugA();
     
+    translate([382,tileW-24-35-5,-panel_height])
+    plugA();
+    
+    translate([592,tileW-24-35-5,-panel_height])
+    plugA();
+}
+if(PRINTPLUGB){
+    translate([14,tileW-24-45-4.5,-panel_height])
+    plugB();
+    
+    translate([233+9,tileW-24-35-4.5,-panel_height])
+    plugB();
+    
+    translate([443+9,tileW-24-35-4.5,-panel_height])
+    plugB();
+    
+    translate([670,tileW-24-40-4.5,-panel_height])
+    plugB();
 }
 
+translate([tileL-37-16, 16, -panel_height])
+plugC();
+
+module plugB(){
+
+posi=[2,9,16,23,27];
+posj=[2,9];
+    intersection(){
+        printPlug(posi,posj);
+
+        // Intersect with cube 
+        translate([12,15,0])
+        cube([134/*142*/,95,panel_height+3]);
+    }
+}
+module plugA(){
+
+posi=[2,8,16,23,27];
+posj=[2,9];
+    intersection(){
+        printPlug(posi,posj);
+
+        // Intersect with cube 
+        translate([12,15,0])
+        cube([65/*142*/,95,panel_height+3]);
+    }
+}
+module plugC(){
+
+posi=[2,9];
+posj=[2,6,10,14,27];
+    intersection(){
+        printPlug(posi,posj);
+
+        // Intersect with cube 
+        translate([12,15,0])
+        cube([74/*142*/,142,panel_height+3]);
+    }
 }
 
 module cornerBorder(cornerR){
