@@ -1,6 +1,6 @@
 
 RENDALL=true;
-RENDALLSPLIT=5;
+RENDALLSPLIT=6;
 
 PRINTHH=false;
 PRINTGRID=true;
@@ -32,7 +32,7 @@ panel_margin=6;
 panel_height=2.8;
 
 posL=0;
-posW=0;
+posW=1;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
@@ -189,16 +189,17 @@ intersection(){
 }
 //connector(posW,posL);
 
-tongueMarginFit = .16;
-tongueMarginFitZ = .16;
+tongueMarginFit = .1;
+tongueMarginFitZ = .3;
+
+x=10;
+y=20;
+z=panel_height/2;
+
 
 module verticalTongue(posW,posL, hole){
 tongueMargin=hole ? -tongueMarginFit : tongueMarginFit;
 tongueMarginZ=hole ? -tongueMarginFit : tongueMarginFitZ;
-
-x=5;
-y=20;
-z=panel_height/3;
 
 tongueX=x-tongueMargin;
 tongueY=y-tongueMargin;
@@ -206,16 +207,18 @@ tongueZ=z-tongueMarginZ;
 
     if(posL ==0){
         translate([
-            -2  + tongueMargin/2,
+             tongueMargin/2,
             tileW-panel_margin-(x/2) + tongueMargin/2,
-            z + tongueMarginZ/2
+            //z + tongueMarginZ/2
+            0
         ])
         cube([tongueY, tongueX, tongueZ]);
     } else if(posL==3){
         translate([
             4*tileL - y-9 + tongueMargin/2,
             tileW-panel_margin-(x/2) + tongueMargin/2,
-            z + tongueMarginZ/2
+            //z + tongueMarginZ/2
+            0
         ])
         cube([tongueY, tongueX, tongueZ]);
     }
@@ -226,10 +229,6 @@ module tongue(posW,posL, hole){
 tongueMargin=hole ? -tongueMarginFit : tongueMarginFit;
 tongueMarginZ=hole ? -tongueMarginFit : tongueMarginFitZ;
 
-x=5;
-y=20;
-z=panel_height/3;
-
 tongueX=x-tongueMargin;
 tongueY=y-tongueMargin;
 tongueZ=z-tongueMarginZ;
@@ -237,8 +236,9 @@ tongueZ=z-tongueMarginZ;
     if(posL>=0){
         translate([
             (posL+1)*tileL-panel_margin-(x/2) + tongueMargin/2,
-            -2 + (posW*2*tileW)+(posW*(-y-8)) + tongueMargin/2, 
-            z + tongueMarginZ/2
+             (posW*2*tileW)+(posW*(-y-12)) + tongueMargin/2, 
+            //z + tongueMarginZ/2
+            0
         ])
         cube([tongueX,tongueY, tongueZ]);
     }
@@ -563,8 +563,8 @@ if(PRINTGRID){
     intersection(){
         rend(RENDALL);
         
-        translate([tileL-15, -12, 0])
-        cube([25,40,10]);
+        /*translate([tileL-15, -12, 0])
+        cube([25,34,10]);*/
     }
 
 }
