@@ -1,5 +1,6 @@
 
-RENDALL=false;
+RENDALL=true;
+RENDALLSPLIT=5;
 
 PRINTHH=false;
 PRINTGRID=true;
@@ -31,7 +32,7 @@ panel_margin=6;
 panel_height=2.8;
 
 posL=0;
-posW=1;
+posW=0;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
@@ -150,6 +151,7 @@ module rend(all){
     if(all == true){
         for(posL=[0:3]){
             for(posW=[0:1]){
+            translate([RENDALLSPLIT*posL, RENDALLSPLIT*posW, 0])
             printGrid(posW,posL);
             }
         }
@@ -167,7 +169,10 @@ intersection(){
             translate([0,0, -HHD]) HHCorners(5.5, 8);
             //connector(posW,posL);
                         
-            tongue(posW,posL);
+            tongue(posW,posL, true);
+                    
+            if((posL==0||posL==3) && posW==1)
+                verticalTongue(posW,posL);
         }
         decorations();
     }
@@ -175,48 +180,70 @@ intersection(){
     translate([(posL*tileL)-panel_margin,(posW*tileW)-panel_margin, -60])
     cube([tileL,tileW,80]);
 }
-    tongue(posW,posL-1);
+    if((posL==0||posL==3) && posW==0)
+        verticalTongue(posW,posL);
+    
+    tongue(posW,posL-1, false);
 
 
 }
 //connector(posW,posL);
 
+tongueMarginFit = .16;
+tongueMarginFitZ = .16;
 
-//    connector(posW,posL);
+module verticalTongue(posW,posL, hole){
+tongueMargin=hole ? -tongueMarginFit : tongueMarginFit;
+tongueMarginZ=hole ? -tongueMarginFit : tongueMarginFitZ;
 
+x=5;
+y=20;
+z=panel_height/3;
 
-module tongue(posW,posL){
+tongueX=x-tongueMargin;
+tongueY=y-tongueMargin;
+tongueZ=z-tongueMarginZ;
 
-tongueX = 5;
-tongueY=20;
-tongueZ=panel_height/3;
-tongueMargin=.2;
-
-    if(posL==0 || posW==0&&posL==-1){
+    if(posL ==0){
         translate([
-            -2,
-            tileW-panel_margin-(tongueX/2),
-            tongueZ
+            -2  + tongueMargin/2,
+            tileW-panel_margin-(x/2) + tongueMargin/2,
+            z + tongueMarginZ/2
         ])
         cube([tongueY, tongueX, tongueZ]);
-    } else if(posL==3 || posW==0&&posL==2){
+    } else if(posL==3){
         translate([
-            4*tileL - tongueY-9,
-            tileW-panel_margin-(tongueX/2),
-            tongueZ
+            4*tileL - y-9 + tongueMargin/2,
+            tileW-panel_margin-(x/2) + tongueMargin/2,
+            z + tongueMarginZ/2
         ])
-        cube([tongueY, tongueX, tongueZ]);    
+        cube([tongueY, tongueX, tongueZ]);
     }
-    
+}
+
+module tongue(posW,posL, hole){
+
+tongueMargin=hole ? -tongueMarginFit : tongueMarginFit;
+tongueMarginZ=hole ? -tongueMarginFit : tongueMarginFitZ;
+
+x=5;
+y=20;
+z=panel_height/3;
+
+tongueX=x-tongueMargin;
+tongueY=y-tongueMargin;
+tongueZ=z-tongueMarginZ;
     
     if(posL>=0){
         translate([
-            (posL+1)*tileL-panel_margin-2.5, 
-            -2 + (posW*2*tileW)+(posW*(-tongueY-8)), 
-            tongueZ
+            (posL+1)*tileL-panel_margin-(x/2) + tongueMargin/2,
+            -2 + (posW*2*tileW)+(posW*(-y-8)) + tongueMargin/2, 
+            z + tongueMarginZ/2
         ])
         cube([tongueX,tongueY, tongueZ]);
     }
+    
+    
 }
 
 module connector(posW, posL){
@@ -533,7 +560,12 @@ HH();
 
 
 if(PRINTGRID){
-    rend(RENDALL);
+    intersection(){
+        rend(RENDALL);
+        
+        translate([tileL-15, -12, 0])
+        cube([25,40,10]);
+    }
 
 }
 if(PRINTREFGRID){
