@@ -1,5 +1,5 @@
 
-RENDALL=true;
+RENDALL=false;
 
 PRINTHH=false;
 PRINTGRID=true;
@@ -7,12 +7,13 @@ PRINTHEX=true;
 PRINTREFGRID=false;
 PRINTCONNECTOR=true;
 
-PRINTPLUGA=true;
-PRINTPLUGB=true;
-PRINTPLUGC=true;
+PRINTPLUGS=false;
+PRINTPLUGA=PRINTPLUGS;
+PRINTPLUGB=PRINTPLUGS;
+PRINTPLUGC=PRINTPLUGS;
 
 screwHolesR=2;
-screwHolesH=20;
+screwHolesH=12;
 
 overall_length=810;
 overall_width=415;
@@ -30,14 +31,14 @@ panel_margin=6;
 panel_height=2.8;
 
 posL=0;
-posW=0;
+posW=1;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
 fitMargin=0.4;
 
 
-lipHeight=36;
+lipHeight=20;
 $fn=80;
 fn=$fn;
 
@@ -165,14 +166,17 @@ intersection(){
             grillefull(posW,posL);
             translate([0,0, -HHD]) HHCorners(5.5, 8);
             //connector(posW,posL);
+                        
+            tongue(posW,posL);
         }
         decorations();
     }
 
-    
     translate([(posL*tileL)-panel_margin,(posW*tileW)-panel_margin, -60])
     cube([tileL,tileW,80]);
 }
+    tongue(posW,posL-1);
+
 
 }
 //connector(posW,posL);
@@ -181,6 +185,39 @@ intersection(){
 //    connector(posW,posL);
 
 
+module tongue(posW,posL){
+
+tongueX = 5;
+tongueY=20;
+tongueZ=panel_height/3;
+tongueMargin=.2;
+
+    if(posL==0 || posW==0&&posL==-1){
+        translate([
+            -2,
+            tileW-panel_margin-(tongueX/2),
+            tongueZ
+        ])
+        cube([tongueY, tongueX, tongueZ]);
+    } else if(posL==3 || posW==0&&posL==2){
+        translate([
+            4*tileL - tongueY-9,
+            tileW-panel_margin-(tongueX/2),
+            tongueZ
+        ])
+        cube([tongueY, tongueX, tongueZ]);    
+    }
+    
+    
+    if(posL>=0){
+        translate([
+            (posL+1)*tileL-panel_margin-2.5, 
+            -2 + (posW*2*tileW)+(posW*(-tongueY-8)), 
+            tongueZ
+        ])
+        cube([tongueX,tongueY, tongueZ]);
+    }
+}
 
 module connector(posW, posL){
 
@@ -220,7 +257,8 @@ union(){
     translate([posL*tileL+(130-posL*15),(2*posW*tileW)+(2-posW*30),-.4])
     linear_extrude(.4) mirror([1,0,0]) text(str(posL,posW), 15);
     
-
+    
+    
     // 12in support
     if(posL==1){
     if(posW==1){
@@ -603,3 +641,4 @@ module cornerBorder(cornerR){
         cylinder(HHD+30, cornerR, cornerR, false);
     }
 }
+
