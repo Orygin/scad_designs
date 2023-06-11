@@ -1,6 +1,6 @@
-
-RENDALL=true;
-RENDALLSPLIT=6;
+//handle 115 30
+RENDALL=false;
+RENDALLSPLIT=0;
 
 PRINTHH=false;
 PRINTGRID=true;
@@ -14,7 +14,7 @@ PRINTPLUGB=PRINTPLUGS;
 PRINTPLUGC=PRINTPLUGS;
 
 screwHolesR=2;
-screwHolesH=12;
+screwHolesH=16.5;
 
 overall_length=810;
 overall_width=415;
@@ -31,7 +31,7 @@ panel_margin=6;
 
 panel_height=2.8;
 
-posL=0;
+posL=2  ;
 posW=1;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
@@ -39,7 +39,7 @@ tileW=(HHH+(2*panel_margin))/2;
 fitMargin=0.4;
 
 
-lipHeight=20;
+lipHeight=24;
 $fn=80;
 fn=$fn;
 
@@ -192,7 +192,7 @@ intersection(){
 tongueMarginFit = .1;
 tongueMarginFitZ = .3;
 
-x=10;
+x=6;
 y=20;
 z=panel_height/2;
 
@@ -267,19 +267,19 @@ union(){
     }
     
     }
-    
-    for(i=[5:65.5:HHW]){   
+    //110,90
+    for(i=[110:70:HHW-100]){   
         translate([i, -500,-screwHolesH])
         rotate([-90,0,0])
         cylinder(2000,screwHolesR, screwHolesR); 
     }
     
-    for(i=[5:65.5:HHW]){   
+    for(i=[110:78:HHH-100]){   
         translate([-800, i,-screwHolesH])
         rotate([0,90,0])
         cylinder(2000,screwHolesR, screwHolesR); 
     }
-    }
+} // Holes in lips
     
     translate([posL*tileL+(130-posL*15),(2*posW*tileW)+(2-posW*30),-.4])
     linear_extrude(.4) mirror([1,0,0]) text(str(posL,posW), 15);
