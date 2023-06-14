@@ -1,6 +1,6 @@
 //handle 115 30
-RENDALL=false;
-RENDALLSPLIT=0;
+RENDALL=true;
+RENDALLSPLIT=10;
 
 PRINTHH=false;
 PRINTGRID=true;
@@ -34,7 +34,7 @@ panel_margin=6;
 panel_height=2.8;
 
 posL=1;
-posW=0;
+posW=1;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
