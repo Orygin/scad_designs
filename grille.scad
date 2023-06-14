@@ -1,6 +1,6 @@
 //handle 115 30
-RENDALL=true;
-RENDALLSPLIT=10;
+RENDALL=false;
+RENDALLSPLIT=0;
 
 PRINTHH=false;
 PRINTGRID=true;
@@ -33,8 +33,8 @@ panel_margin=6;
 
 panel_height=2.8;
 
-posL=1;
-posW=1;
+posL=3;
+posW=0;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
@@ -307,9 +307,9 @@ union(){
     
     if(posL==3){    
     translate([3*tileL-panel_margin-110, 
-            1*(tileW)-panel_margin, -HHDepth])
+            1*(tileW)-panel_margin, panel_height-HHDepth])
     rotate([0,0,-20])
-    linear_extrude(HHDepth+panel_height) arc(310/2, [0,40], 8);
+    linear_extrude(HHDepth) arc(310/2, [0,40], 8);
     
     }
 }
@@ -584,14 +584,14 @@ for(i=[0:5]){
 
 module plugB(){
 
-posi=[2,9,16,23,27];
+posi=[4,9,16,23,27];
 posj=[2,9];
     intersection(){
         printPlug(posi,posj);
 
         // Intersect with cube 
-        translate([12,15,0])
-        cube([134/*142*/,95,panel_height+3]);
+        translate([28,15,0])
+        cube([134-16/*142*/,95,panel_height+3]);
     }
 }
 module plugA(){
