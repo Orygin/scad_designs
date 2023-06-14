@@ -9,9 +9,9 @@ PRINTREFGRID=false;
 PRINTCONNECTOR=true;
 
 PRINTPLUGS=false;
-PRINTPLUGA=PRINTPLUGS;
-PRINTPLUGB=PRINTPLUGS;
-PRINTPLUGC=PRINTPLUGS;
+PRINTPLUGA=PRINTPLUGS; // 3
+PRINTPLUGB=PRINTPLUGS; // 4
+PRINTPLUGC=PRINTPLUGS; // 6
 
 screwHolesR=2;
 screwHolesH=20;
@@ -33,8 +33,8 @@ panel_margin=6;
 
 panel_height=2.8;
 
-posL=0;
-posW=1;
+posL=1;
+posW=0;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
 
@@ -293,15 +293,15 @@ union(){
     if(posW==1){
     
     //upper
-    translate([(posL+1)*tileL-panel_margin-62, posW*(tileW)-panel_margin+70, -HHDepth])
+    translate([(posL+1)*tileL-panel_margin-62, posW*(tileW)-panel_margin+70, -HHDepth+panel_height])
     rotate([0,0,30])
-    cylinder(HHDepth+panel_height, 16,18, $fn=3);
+    cylinder(HHDepth, 16,18, $fn=3);
     } else {
     //lower
     translate([(posL+1)*tileL-panel_margin-61, 
-            (posW+1)*(tileW)-panel_margin-70, -HHDepth])
+            (posW+1)*(tileW)-panel_margin-70, -HHDepth+panel_height])
         rotate([0,0,90])
-        cylinder(HHDepth+panel_height, 16,18, $fn=3);
+        cylinder(HHDepth, 16,18, $fn=3);
     }
     }
     
@@ -350,9 +350,9 @@ module HH() {
 
 module HHHandles(){
 translate([125,-15,-HHHandlesH])
-cube([30, 30, HHD]);
-translate([HHW-125-30,-15,-HHHandlesH])
-cube([30, 30, HHD]);
+cube([40, 30, HHD]);
+translate([HHW-125-40,-15,-HHHandlesH])
+cube([40, 30, HHD]);
 }
 
 module HHCorners(margin, corner){
@@ -462,7 +462,7 @@ module printPlug(posi,posj){
 plugD=15.5;
 fitment=0.12;
     // Visual
-    linear_extrude(height=panel_height) lattice(72,160, 5, 5, 7);
+    linear_extrude(height=panel_height) lattice(18,32, 5, 5, 7);
     
     // Plug
     
@@ -472,7 +472,7 @@ fitment=0.12;
     difference(){
     plug(posi,posj);
     translate([0, 0, panel_height])
-    linear_extrude(height=3) lattice(10, 30, 5-fitment, 5, 7);
+    linear_extrude(height=3) lattice(18, 30, 5-fitment, 5, 7);
     
     }
     
@@ -510,13 +510,14 @@ HHHandles();
 
 
 if(PRINTGRID){
+intersection(){
     difference(){
         rend(RENDALL);
         translate([0,0,-HHD])
         HHHandles();
-
-        /*translate([tileL-15, -12, 0])
-        cube([25,34,10]);*/
+        }
+/*        translate([tileL*2-110, 120, -100])
+        cube([80,300,200]);*/
     }
 
 }
