@@ -1,5 +1,5 @@
 //handle 115 30
-RENDALL=false;
+RENDALL=true;
 RENDALLSPLIT=0;
 
 PRINTHH=false;
@@ -33,7 +33,7 @@ panel_margin=6;
 
 panel_height=2.8;
 
-posL=3;
+posL=0;
 posW=0;
 tileL=(HHW+(2*panel_margin))/4;
 tileW=(HHH+(2*panel_margin))/2;
@@ -582,7 +582,7 @@ for(i=[0:5]){
     }
 }
 
-module plugB(){
+module plugB2(){
 
 posi=[4,9,16,23,27];
 posj=[2,9];
@@ -592,6 +592,19 @@ posj=[2,9];
         // Intersect with cube 
         translate([28,15,0])
         cube([134-16/*142*/,95,panel_height+3]);
+    }
+}
+
+module plugB(){
+
+posi=[2,9,16,23,27];
+posj=[2,9];
+    intersection(){
+        printPlug(posi,posj);
+
+        // Intersect with cube 
+        translate([12,15,0])
+        cube([134/*142*/,95,panel_height+3]);
     }
 }
 module plugA(){
